@@ -3,67 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Robótica - Juiz</title>
-    <link rel="shortcut icon" href="img/LOGO.ico">
+    <title>Painel do Juiz - Fira Brasil</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Layout de Duas Colunas */
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+        .col-left { flex: 1; min-width: 450px; }
+        .col-right { flex: 1; background: white; padding: 20px; border-radius: 15px; border: 3px solid #dc2626; }
+        
+        /* Botões de Gerenciamento */
+        .btn-danger-zone {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .btn-del {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-container">
-        <img src="img/fira_logo.png" alt="Fira Brasil" class="header-logo">
-        <h1>Painel do Juiz</h1>
-        <img src="img/robotec_logo.png" alt="Robotec" class="header-logo">
-    </div>
-
-    <div class="section">
-        <span class="section-title">Identificação</span>
-        <div class="row">
-            <label>Equipe:</label>
-            <select id="equipe-select" style="padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; width: 60%;">
-                <option value="VIVERTEC">VIVERTEC</option>
-                <option value="FLASHLIGHT">FLASHLIGHT</option>
-                <option value="MARVELTEC U-19">MARVELTEC U-19</option>
-                <option value="TECFLOR">TECFLOR</option>
-                <option value="ROBOHERO">ROBOHERO</option>
-                <option value="MASERATI">MASERATI</option>
-                <option value="ROBO COC">ROBO COC</option>
-                <option value="ROBOTEC-PED">ROBOTEC-PED</option>
-                <option value="ARTHEMIS">ARTHEMIS</option>
-                <option value="FÚRIA">FÚRIA</option>
-                <option value="ENGREBOT">ENGREBOT</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="section">
-        <span class="section-title">Missões Iniciais</span>
-        <div class="row">
-            <label>Material inicia no robô (+50)</label>
-            <input type="checkbox" id="item1" onchange="calculate()">
-        </div>
-        <div class="row">
-            <label>Coleta autônoma (+80)</label>
-            <input type="checkbox" id="item2" onchange="calculate()">
-        </div>
-    </div>
-
-    <div class="section">
-        <span class="section-title">Navegação (Curvas 90º)</span>
-        <div class="row">
-            <label>Curvas superadas (+20 cada)</label>
-            <div class="counter">
-                <button class="btn-counter" onclick="updateCurvas(-1)">-</button>
-                <span id="curvas-val" style="font-weight: bold;">0</span>
-                <button class="btn-counter" onclick="updateCurvas(1)">+</button>
+<div class="main-layout">
+    <div class="col-left">
+        <div class="container" style="max-width: 100%;">
+            <div class="header-container">
+                <img src="img/fira_logo.png" class="header-logo">
+                <h1>Painel do Juiz</h1>
+                <img src="img/robotec_logo.png" class="header-logo">
             </div>
+
+            <div class="section">
+                <span class="section-title">Identificação</span>
+                <div class="row">
+                    <label>Equipe:</label>
+                    <select id="equipe-select" style="width: 70%; padding: 8px;">
+                        <option value="VIVERTEC">VIVERTEC</option>
+                        <option value="FLASHLIGHT">FLASHLIGHT</option>
+                        <option value="MARVELTEC U-19">MARVELTEC U-19</option>
+                        <option value="TECFLOR">TECFLOR</option>
+                        <option value="ROBOHERO">ROBOHERO</option>
+                        <option value="MASERATI">MASERATI</option>
+                        <option value="ROBO COC">ROBO COC</option>
+                        <option value="ROBOTEC-PED">ROBOTEC-PED</option>
+                        <option value="ARTHEMIS">ARTHEMIS</option>
+                        <option value="FÚRIA">FÚRIA</option>
+                        <option value="ENGREBOT">ENGREBOT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-title">Missões</span>
+                <div class="row"><label>Material no robô (+50)</label><input type="checkbox" id="item1" onchange="calculate()"></div>
+                <div class="row"><label>Coleta autônoma (+80)</label><input type="checkbox" id="item2" onchange="calculate()"></div>
+                <div class="row">
+                    <label>Curvas (+20 cada)</label>
+                    <div class="counter">
+                        <button class="btn-counter" onclick="updateCurvas(-1)">-</button>
+                        <span id="curvas-val">0</span>
+                        <button class="btn-counter" onclick="updateCurvas(1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-title">Depósito e Tempo</span>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="deposito" value="200" onchange="calculate()"> L2 Azul - Total [200]</label>
+                    <label class="radio-option"><input type="radio" name="deposito" value="0" onchange="calculate()" checked> Não entregue</label>
+                </div>
+                <div class="row" style="margin-top:15px;">
+                    <label>Tempo (seg):</label>
+                    <input type="number" id="tempo-input" style="width: 80px;">
+                </div>
+            </div>
+
+            <div class="action-row">
+                <div class="total-box-mini">
+                    <span class="label-mini">PONTOS</span>
+                    <span id="total" class="total-points-mini">0</span>
+                </div>
+                <button onclick="salvarPontuacao()" class="btn-save-main">REGISTRAR</button>
+            </div>
+            <button onclick="resetForm()" class="btn-reset">Limpar Campos</button>
         </div>
     </div>
 
-    <div class="section">
-        <span class="section-title">Local de Depósito</span>
-        <div class="radio-group">
-            <label class="radio-option"><input type="radio" name="deposito" value="200" onchange="calculate()"> Local 2 (Azul) - Total [200]</label>
-            <label class="radio-option"><input type="radio" name="deposito" value="100" onchange="calculate()"> Local 2 (Azul) - Parcial [100]</label>
-            <label class="radio-option"><input type="radio" name="deposito" value="100" onchange="calculate()"> Local 1 (Vermelho) - Total [100]</label>
-            <label class="radio-option"><input type="radio" name="deposito" value="80" onchange="calculate
+    <div class="col-right">
+        <h2 style="text-align: center; color: #1e293b; margin-top: 0;">Classificação U19</h2>
+        <table>
+            <thead>
+                <tr class="table-header">
+                    <th>Pos</th>
+                    <th style="text-align: left;">Equipe</th>
+                    <th>Pts</th>
+                    <th>Tempo</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="ranking-body">
+                </tbody>
+        </table>
+        
+        <button onclick="zerarRanking()" class="btn-danger-zone">ZERAR TODA A COMPETIÇÃO</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="js/script.js"></script>
+<script>window.onload = carregarFirebase;</script>
+</body>
+</html>
