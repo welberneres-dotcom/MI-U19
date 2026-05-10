@@ -146,3 +146,26 @@ function resetForm() {
     const radioPadrao = document.querySelector('input[name="deposito"][value="0"]');
     if (radioPadrao) radioPadrao.checked = true;
 }
+
+function zerarRanking() {
+    // 1. Pergunta para evitar cliques acidentais
+    const confirmacao1 = confirm("⚠️ ATENÇÃO: Você está prestes a APAGAR TODAS as pontuações de todas as equipes!");
+    
+    if (confirmacao1) {
+        const confirmacao2 = confirm("TEM CERTEZA ABSOLUTA? Esta ação não pode ser desfeita.");
+        
+        if (confirmacao2) {
+            // 2. Comando para o Firebase remover todos os dados de 'ranking'
+            db.ref('ranking').remove()
+                .then(() => {
+                    alert("✅ Competição zerada com sucesso!");
+                    // Opcional: recarregar a página para limpar tudo visualmente
+                    location.reload(); 
+                })
+                .catch((error) => {
+                    console.error("Erro ao zerar:", error);
+                    alert("❌ Erro ao zerar o banco de dados: " + error.message);
+                });
+        }
+    }
+}
