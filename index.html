@@ -43,7 +43,12 @@
     </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="js/script.js"></script>
-<script>window.onload = carregarFirebase;</script>
+<script>
+    // Esta linha é crucial para iniciar a busca de dados
+    window.onload = carregarFirebase;
+</script>
 </body>
 </html>
