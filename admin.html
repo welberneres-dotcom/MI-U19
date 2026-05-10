@@ -5,112 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Juiz - Fira Brasil</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        /* Layout de Duas Colunas */
-        .main-layout {
-            display: flex;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            align-items: flex-start;
-        }
-        .col-left { flex: 1; min-width: 450px; }
-        .col-right { flex: 1; background: white; padding: 20px; border-radius: 15px; border: 3px solid #dc2626; }
-        
-        /* Botões de Gerenciamento */
-        .btn-danger-zone {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-        .btn-del {
-            background: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
-<div class="main-layout">
-    <div class="col-left">
-        <div class="container" style="max-width: 100%;">
-            <div class="header-container">
-                <img src="img/fira_logo.png" class="header-logo">
-                <h1>Painel do Juiz</h1>
-                <img src="img/robotec_logo.png" class="header-logo">
-            </div>
-
-            <div class="section">
-                <span class="section-title">Identificação</span>
-                <div class="row">
-                    <label>Equipe:</label>
-                    <select id="equipe-select" style="width: 70%; padding: 8px;">
-                            <option>Carregando equipes...</option>
-                        </select>
-                        
-                        <script>
-                            window.onload = function() {
-                                carregarFirebase(); // Isso vai carregar o ranking e o select
-                            };
-                        </script>
-                </div>
-            </div>
-
-            <div class="section">
-                <span class="section-title">Missões</span>
-                <div class="row"><label>Material no robô (+50)</label><input type="checkbox" id="item1" onchange="calculate()"></div>
-                <div class="row"><label>Coleta autônoma (+80)</label><input type="checkbox" id="item2" onchange="calculate()"></div>
-                <div class="row">
-                    <label>Curvas (+20 cada)</label>
-                    <div class="counter">
-                        <button class="btn-counter" onclick="updateCurvas(-1)">-</button>
-                        <span id="curvas-val">0</span>
-                        <button class="btn-counter" onclick="updateCurvas(1)">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <span class="section-title">Depósito e Tempo</span>
-                <div class="radio-group">
-                    <label class="radio-option"><input type="radio" name="deposito" value="200" onchange="calculate()"> L2 Azul - Total [200]</label>
-                    <label class="radio-option"><input type="radio" name="deposito" value="0" onchange="calculate()" checked> Não entregue</label>
-                </div>
-                <div class="row" style="margin-top:15px;">
-                    <label>Tempo (seg):</label>
-                    <input type="number" id="tempo-input" style="width: 80px;">
-                </div>
-            </div>
-
-            <div class="action-row">
-                <div class="total-box-mini">
-                    <span class="label-mini">PONTOS</span>
-                    <span id="total" class="total-points-mini">0</span>
-                </div>
-                <button onclick="salvarPontuacao()" class="btn-save-main">REGISTRAR</button>
-            </div>
-            <button onclick="resetForm()" class="btn-reset">Limpar Campos</button>
+<div class="main-wrapper">
+    <div class="card-juiz">
+        <div class="header-card">
+            <img src="img/fira_logo.png" alt="Fira Brasil">
+            <h1>Painel do Juiz</h1>
+            <img src="img/robotec_logo.png" alt="Robotec" style="height: 40px;">
         </div>
+
+        <div class="section-form">
+            <label class="section-title">Identificação</label>
+            <div class="form-group">
+                <label>Equipe:</label>
+                <select id="equipe-select">
+                    </select>
+            </div>
+        </div>
+
+        <div class="section-form">
+            <label class="section-title">Missões</label>
+            <div class="check-group"><label>Material no robô (+50)</label><input type="checkbox" id="item1" onchange="calculate()"></div>
+            <div class="check-group"><label>Coleta autônoma (+80)</label><input type="checkbox" id="item2" onchange="calculate()"></div>
+            <div class="counter-group">
+                <label>Curvas (+20 cada)</label>
+                <div class="counter-controls">
+                    <button class="btn-counter" onclick="updateCurvas(-1)">-</button>
+                    <span id="curvas-val">0</span>
+                    <button class="btn-counter" onclick="updateCurvas(1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-form">
+            <label class="section-title">Finalização</label>
+            <div class="radio-group">
+                <label><input type="radio" name="deposito" value="200" onchange="calculate()"> L2 Azul - Total [200]</label>
+                <label><input type="radio" name="deposito" value="0" onchange="calculate()" checked> Não entregue</label>
+            </div>
+            <div class="form-group-alert">
+                <label>Tempo (seg):</label>
+                <input type="number" id="tempo-input" placeholder="Obrigatório">
+            </div>
+        </div>
+
+        <div class="total-bar">
+            <div class="total-box">
+                <span class="label-total">PONTOS</span>
+                <span id="total" class="pts-total">0</span>
+            </div>
+            <button onclick="salvarPontuacao()" class="btn-registrar">REGISTRAR</button>
+        </div>
+        <button onclick="resetForm()" class="btn-limpar">Limpar Campos</button>
     </div>
 
-    <div class="col-right">
-        <h2 style="text-align: center; color: #1e293b; margin-top: 0;">Classificação U19</h2>
-        <table>
+    <div class="card-ranking">
+        <h2>Classificação U19</h2>
+        <table class="table-admin">
             <thead>
-                <tr class="table-header">
+                <tr>
                     <th>Pos</th>
-                    <th style="text-align: left;">Equipe</th>
+                    <th>Equipe</th>
                     <th>Pts</th>
                     <th>Tempo</th>
                     <th>Ação</th>
@@ -119,14 +78,16 @@
             <tbody id="ranking-body">
                 </tbody>
         </table>
-        
-        <button onclick="zerarRanking()" class="btn-danger-zone">ZERAR TODA A COMPETIÇÃO</button>
+        <button onclick="zerarRanking()" class="btn-zerar">ZERAR TODA A COMPETIÇÃO</button>
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="js/script.js"></script>
-<script>window.onload = carregarFirebase;</script>
+<script>
+    // Inicialização ao carregar a página
+    window.onload = function() {
+        carregarFirebase(); // Isso vai carregar o ranking e popular o select
+    };
+</script>
 </body>
 </html>
