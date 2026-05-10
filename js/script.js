@@ -1,7 +1,4 @@
-
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-
+// CONFIGURAÇÃO DO FIREBASE (Suas credenciais reais)
 const firebaseConfig = {
   apiKey: "AIzaSyAXuajtBbVg-il6Z89fgd2xjcstaggHAOQ",
   authDomain: "mi-u19.firebaseapp.com",
@@ -13,9 +10,11 @@ const firebaseConfig = {
   measurementId: "G-3R4VG0S190"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// INICIALIZAÇÃO CORRETA (Modo Compatível)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database(); // AGORA O 'db' EXISTE!
 
 const EQUIPES_LISTA = [
     "VIVERTEC", "FLASHLIGHT", "MARVELTEC U-19", "TECFLOR", 
@@ -61,6 +60,7 @@ function salvarPontuacao() {
         return;
     }
 
+    // Salvando no Banco de Dados
     db.ref('ranking/' + equipe).set({
         equipe: equipe,
         pontos: pontos,
@@ -77,7 +77,6 @@ function carregarFirebase() {
     const body = document.getElementById('ranking-body');
     if (!body) return;
 
-    // Popula o select se estiver no Admin
     const select = document.getElementById('equipe-select');
     if (select) {
         select.innerHTML = ""; 
@@ -89,7 +88,6 @@ function carregarFirebase() {
         });
     }
 
-    // Escuta o banco de dados em tempo real
     db.ref('ranking/').on('value', (snapshot) => {
         const dadosDB = snapshot.val() || {};
         let listaRanking = [];
@@ -102,7 +100,6 @@ function carregarFirebase() {
             }
         });
 
-        // Ordenação: Pontos (maior primeiro) e Tempo (menor primeiro)
         listaRanking.sort((a, b) => {
             if (b.pontos !== a.pontos) return b.pontos - a.pontos;
             if (a.tempo === 0) return 1;
@@ -112,7 +109,6 @@ function carregarFirebase() {
 
         body.innerHTML = "";
         listaRanking.forEach((item, index) => {
-            // Verifica se é a página Admin (tem coluna Ação)
             const thAcao = document.querySelector('th:nth-child(5)');
             let tdAcao = ""; 
             
@@ -140,16 +136,13 @@ function excluirEquipe(nome) {
     }
 }
 
-function zerarRanking() {
-    if (confirm("ATENÇÃO: Deseja apagar TODAS as pontuações?")) {
-        db.ref('ranking').remove();
-    }
-}
-
 function resetForm() {
     curvas = 0;
     if (document.getElementById('curvas-val')) document.getElementById('curvas-val').innerText = 0;
     document.querySelectorAll('input[type=checkbox]').forEach(el => el.checked = false);
     document.querySelectorAll('input[type=number]').forEach(el => el.value = "");
     if (document.getElementById('total')) document.getElementById('total').innerText = 0;
+    // Reseta o rádio para "Não entregue"
+    const radioPadrao = document.querySelector('input[name="deposito"][value="0"]');
+    if (radioPadrao) radioPadrao.checked = true;
 }
