@@ -1,7 +1,4 @@
-
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-
+// CONFIGURAÇÃO FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAXuajtBbVg-il6Z89fgd2xjcstaggHAOQ",
   authDomain: "mi-u19.firebaseapp.com",
@@ -13,9 +10,9 @@ const firebaseConfig = {
   measurementId: "G-3R4VG0S190"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// Inicializa o Firebase no modo Compat
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
 let curvas = 0;
 
@@ -55,7 +52,7 @@ function salvarFirebase() {
         return;
     }
 
-    // Salva usando o nome da equipe como ID para não duplicar
+    // Salva usando a variável 'db' definida acima
     db.ref('ranking/' + equipe).set({
         equipe: equipe,
         pontos: pontos,
@@ -66,31 +63,30 @@ function salvarFirebase() {
     }).catch(error => alert("Erro ao salvar: " + error.message));
 }
 
-// --- FUNÇÃO DO PÚBLICO (INDEX) - O SEGREDO DO TEMPO REAL ---
+// --- FUNÇÃO DO PÚBLICO (INDEX) - REALTIME ---
 function carregarFirebase() {
     const body = document.getElementById('ranking-body');
-    if(!body) return; // Só executa se estiver na página de ranking
+    if(!body) return;
 
-    console.log("Conectando ao ranking...");
+    console.log("Conectando ao ranking em tempo real...");
 
     db.ref('ranking/').on('value', (snapshot) => {
         const dados = snapshot.val();
         let lista = [];
 
         if (dados) {
-            // Converte o objeto em array
             Object.keys(dados).forEach(key => {
                 lista.push(dados[key]);
             });
 
-            // Ordenação: Pontos (maior primeiro) e Tempo (menor primeiro)
+            // Ordenação: Pontos (desc) e Tempo (asc)
             lista.sort((a, b) => {
                 if (b.pontos !== a.pontos) return b.pontos - a.pontos;
                 return a.tempo - b.tempo;
             });
         }
 
-        body.innerHTML = ""; // Limpa a tabela
+        body.innerHTML = ""; 
 
         if (lista.length === 0) {
             body.innerHTML = "<tr><td colspan='4'>Nenhuma pontuação registrada ainda.</td></tr>";
@@ -98,16 +94,16 @@ function carregarFirebase() {
             lista.forEach((item, index) => {
                 body.innerHTML += `
                     <tr>
-                        <td><b>${index + 1}º</b></td>
+                        <td class="posicao">${index + 1}º</td>
                         <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
-                        <td style="color: #2563eb; font-weight: bold;">${item.pontos}</td>
+                        <td class="pts">${item.pontos}</td>
                         <td>${item.tempo}s</td>
                     </tr>`;
             });
         }
     }, (error) => {
         console.error("Erro de permissão no Firebase: ", error);
-        body.innerHTML = "<tr><td colspan='4' style='color:red'>Erro de acesso: Verifique as Regras do Firebase.</td></tr>";
+        body.innerHTML = "<tr><td colspan='4' style='color:red'>Erro de acesso: Verifique as Regras do Realtime Database no Console.</td></tr>";
     });
 }
 
