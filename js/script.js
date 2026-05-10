@@ -1,4 +1,4 @@
-// CONFIGURAÇÃO DO FIREBASE
+// CONFIGURAÇÃO DO FIREBASE (Mantenha seus dados originais aqui)
 const firebaseConfig = {
     apiKey: "AIzaSyAXuajtBbVg-il6Z89fgd2xjcstaggHAOQ",
     authDomain: "mi-u19.firebaseapp.com",
@@ -9,74 +9,26 @@ const firebaseConfig = {
     appId: "1:1095633099036:web:327abeb7f65f3c998402d9"
 };
 
+// Inicializa Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
-// LISTA FIXA DE EQUIPES (Baseada na sua imagem)
-const EQUIPES_PADRAO = [
+// LISTA MESTRA DE EQUIPES
+const EQUIPES_LISTA = [
     "VIVERTEC", "FLASHLIGHT", "MARVELTEC U-19", "TECFLOR", 
     "ROBOHERO", "MASERATI", "ROBO COC", "ROBOTEC-PED", 
     "ARTHEMIS", "FÚRIA", "ENGREBOT"
 ];
 
-function carregarFirebase() {
-    const body = document.getElementById('ranking-body');
-    if(!body) return;
+let curvas = 0;
 
-    db.ref('ranking/').on('value', (snapshot) => {
-        const dadosFirebase = snapshot.val() || {};
-        let listaFinal = [];
-
-        // 1. Unir a lista fixa com os dados do Firebase
-        EQUIPES_PADRAO.forEach(nomeEquipe => {
-            if (dadosFirebase[nomeEquipe]) {
-                // Se a equipe já tem ponto no Firebase, usa o dado real
-                listaFinal.push(dadosFirebase[nomeEquipe]);
-            } else {
-                // Se não tem nada, coloca ela com zero
-                listaFinal.push({
-                    equipe: nomeEquipe,
-                    pontos: 0,
-                    tempo: 0
-                });
-            }
-        });
-
-        // 2. ORDENAÇÃO: Maior pontuação primeiro. Em caso de empate, menor tempo.
-        listaFinal.sort((a, b) => {
-            if (b.pontos !== a.pontos) {
-                return b.pontos - a.pontos; // Maior pontuação
-            }
-            // Se os pontos forem iguais, o que tiver o MENOR tempo ganha (ascendente)
-            // Mas atenção: tempo 0 deve ficar por último se não correu ainda
-            if (a.tempo === 0) return 1;
-            if (b.tempo === 0) return -1;
-            return a.tempo - b.tempo;
-        });
-
-        // 3. Renderizar na tela
-        body.innerHTML = ""; 
-        listaFinal.forEach((item, index) => {
-            body.innerHTML += `
-                <tr>
-                    <td class="posicao">${index + 1}º</td>
-                    <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
-                    <td class="pts" style="color: #2563eb; font-weight: bold;">${item.pontos}</td>
-                    <td>${item.tempo > 0 ? item.tempo + 's' : '---'}</td>
-                </tr>`;
-        });
-    });
-}
-// --- FUNÇÕES DO JUIZ (ADMIN) ---
+// --- FUNÇÕES DA CALCULADORA (ADMIN) ---
 function updateCurvas(val) {
     curvas = Math.max(0, curvas + val);
     const campo = document.getElementById('curvas-val');
-    if(campo) {
-        campo.innerText = curvas;
-        calculate();
-    }
+    if(campo) { campo.innerText = curvas; calculate(); }
 }
 
 function calculate() {
@@ -95,13 +47,13 @@ function calculate() {
     if(display) display.innerText = total;
 }
 
-function salvarFirebase() {
+function salvarPontuacao() {
     const equipe = document.getElementById('equipe-select').value;
     const tempo = parseInt(document.getElementById('tempo-input').value);
     const pontos = parseInt(document.getElementById('total').innerText);
 
     if (isNaN(tempo) || tempo <= 0) {
-        alert("Erro: Informe o tempo da prova!");
+        alert("Erro: Informe o tempo total da prova em segundos!");
         return;
     }
 
@@ -110,56 +62,49 @@ function salvarFirebase() {
         pontos: pontos,
         tempo: tempo
     }).then(() => {
-        alert("Pontuação registrada!");
+        alert("Pontuação de " + equipe + " enviada com sucesso!");
         resetForm();
-    }).catch(error => {
-        console.error("Erro ao salvar:", error);
-        alert("Erro ao salvar: " + error.message);
-    });
+    }).catch(error => alert("Erro ao salvar: " + error.message));
 }
 
-// --- FUNÇÃO DO PÚBLICO (INDEX) ---
+// --- FUNÇÃO DO PÚBLICO (RANKING) ---
 function carregarFirebase() {
     const body = document.getElementById('ranking-body');
     if(!body) return;
 
-    console.log("Tentando ler dados do Firebase...");
-
     db.ref('ranking/').on('value', (snapshot) => {
-        const dados = snapshot.val();
-        console.log("Dados recebidos:", dados); // Para você checar no F12
-        let lista = [];
+        const dadosDB = snapshot.val() || {};
+        let rankingFinal = [];
 
-        if (dados) {
-            Object.keys(dados).forEach(key => {
-                lista.push(dados[key]);
-            });
+        // Preenche todas as equipes, usando dados do DB ou zerando as que não jogaram
+        EQUIPES_LISTA.forEach(nome => {
+            if (dadosDB[nome]) {
+                rankingFinal.push(dadosDB[nome]);
+            } else {
+                rankingFinal.push({ equipe: nome, pontos: 0, tempo: 0 });
+            }
+        });
 
-            // Ordenação: 1º Pontos (Maior), 2º Tempo (Menor)
-            lista.sort((a, b) => {
-                if (b.pontos !== a.pontos) return b.pontos - a.pontos;
-                return a.tempo - b.tempo;
-            });
-        }
+        // ORDENAÇÃO: 1º Pontos (Desc), 2º Tempo (Asc)
+        rankingFinal.sort((a, b) => {
+            if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+            // Se empatar em pontos, o menor tempo ganha. 
+            // Se o tempo for 0 (não jogou), ele vai para o fim do empate.
+            if (a.tempo === 0) return 1;
+            if (b.tempo === 0) return -1;
+            return a.tempo - b.tempo;
+        });
 
-        body.innerHTML = ""; 
-
-        if (lista.length === 0) {
-            body.innerHTML = "<tr><td colspan='4'>Nenhuma pontuação registrada.</td></tr>";
-        } else {
-            lista.forEach((item, index) => {
-                body.innerHTML += `
-                    <tr>
-                        <td class="posicao"><b>${index + 1}º</b></td>
-                        <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
-                        <td class="pts" style="color: #2563eb; font-weight: bold; font-size: 1.2rem;">${item.pontos}</td>
-                        <td>${item.tempo}s</td>
-                    </tr>`;
-            });
-        }
-    }, (error) => {
-        console.error("Erro de permissão:", error);
-        body.innerHTML = "<tr><td colspan='4' style='color:red'>Erro de acesso: Verifique as Regras no Console do Firebase.</td></tr>";
+        body.innerHTML = "";
+        rankingFinal.forEach((item, index) => {
+            body.innerHTML += `
+                <tr>
+                    <td class="posicao"><b>${index + 1}º</b></td>
+                    <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
+                    <td class="pts">${item.pontos}</td>
+                    <td>${item.tempo > 0 ? item.tempo + 's' : '---'}</td>
+                </tr>`;
+        });
     });
 }
 
@@ -167,9 +112,8 @@ function resetForm() {
     curvas = 0;
     const curvasVal = document.getElementById('curvas-val');
     if(curvasVal) curvasVal.innerText = 0;
-    const checks = ['item1', 'item2', 'bonus1', 'bonus2'];
-    checks.forEach(id => { if(document.getElementById(id)) document.getElementById(id).checked = false; });
-    if(document.getElementById('tempo-input')) document.getElementById('tempo-input').value = "";
-    document.querySelectorAll('input[name="deposito"]').forEach(r => r.checked = r.value == "0");
+    document.querySelectorAll('input[type=checkbox]').forEach(el => el.checked = false);
+    document.querySelectorAll('input[type=number]').forEach(el => el.value = "");
+    document.querySelectorAll('input[name=deposito]').forEach(el => el.checked = el.value == "0");
     calculate();
 }
