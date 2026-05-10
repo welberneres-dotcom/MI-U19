@@ -33,18 +33,20 @@ function updateCurvas(val) {
 function calculate() {
     let total = 0;
     
-    // Missões
+    // Missões Iniciais
     if (document.getElementById('item1')?.checked) total += 50;
     if (document.getElementById('item2')?.checked) total += 80;
     
-    // Navegação
+    // Navegação (Curvas)
     total += (curvas * 20);
     
-    // Depósito
-    const deposito = document.querySelector('input[name="deposito"]:checked')?.value;
-    if (deposito) total += parseInt(deposito);
+    // Local de Depósito (Pega o valor de qualquer rádio selecionado)
+    const depositoSelecionado = document.querySelector('input[name="deposito"]:checked');
+    if (depositoSelecionado) {
+        total += parseInt(depositoSelecionado.value);
+    }
     
-    // Atualiza o display (sem NaN)
+    // Atualiza o display de pontos
     const display = document.getElementById('total');
     if (display) display.innerText = total;
 }
