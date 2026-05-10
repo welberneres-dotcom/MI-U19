@@ -98,27 +98,47 @@ function calculate() {
     const display = document.getElementById('total');
     if(display) display.innerText = total;
 }
-
 function salvarPontuacao() {
-    const equipe = document.getElementById('equipe-select').value;
-    const tempo = parseInt(document.getElementById('tempo-input').value);
-    const pontos = parseInt(document.getElementById('total').innerText);
+    // 1. Captura os elementos
+    const equipeSelect = document.getElementById('equipe-select');
+    const tempoInput = document.getElementById('tempo-input');
+    const totalSpan = document.getElementById('total');
 
-    if (isNaN(tempo) || tempo <= 0) {
-        alert("Erro: Informe o tempo total da prova em segundos!");
+    // 2. Validação de segurança: verifica se os elementos existem na página
+    if (!equipeSelect || !tempoInput || !totalSpan) {
+        console.error("Erro: Um ou mais elementos do formulário não foram encontrados.");
         return;
     }
 
+    const equipe = equipeSelect.value;
+    
+    // 3. Conversão rigorosa para números
+    // Usamos Number() ou parseInt() com fallback para 0 para evitar 'NaN' no banco
+    const tempo = parseInt(tempoInput.value, 10);
+    const pontos = parseInt(totalSpan.innerText, 10) || 0;
+
+    // 4. Validação do Tempo
+    if (isNaN(tempo) || tempo <= 0) {
+        alert("Erro: Informe o tempo total da prova em segundos!");
+        tempoInput.focus(); // Coloca o cursor no campo de tempo para o juiz
+        return;
+    }
+
+    // 5. Envio para o Firebase
+    // Importante: Usar .update() ou .set() garantindo que os tipos sejam numéricos
     db.ref('ranking/' + equipe).set({
         equipe: equipe,
         pontos: pontos,
-        tempo: tempo
+        tempo: tempo,
+        timestamp: Date.now() // Opcional: ajuda a saber qual foi a última atualização
     }).then(() => {
         alert("Pontuação de " + equipe + " enviada com sucesso!");
-        resetForm();
-    }).catch(error => alert("Erro ao salvar: " + error.message));
+        resetForm(); // Limpa o formulário para a próxima equipe
+    }).catch(error => {
+        console.error("Erro Firebase:", error);
+        alert("Erro ao salvar no banco de dados: " + error.message);
+    });
 }
-
 // --- FUNÇÃO DO PÚBLICO (RANKING) ---
 function carregarFirebase() {
     const body = document.getElementById('ranking-body');
