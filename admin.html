@@ -40,14 +40,16 @@
                 </div>
             </div>
         </div>
-
         <div class="section-form">
-            <label class="section-title">Finalização</label>
+            <label class="section-title">Local de Depósito</label>
             <div class="radio-group">
                 <label><input type="radio" name="deposito" value="200" onchange="calculate()"> L2 Azul - Total [200]</label>
-                <label><input type="radio" name="deposito" value="0" onchange="calculate()" checked> Não entregue</label>
+                <label><input type="radio" name="deposito" value="100" onchange="calculate()"> L2 Azul - Parcial [100]</label>
+                <label><input type="radio" name="deposito" value="100" onchange="calculate()"> L1 Vermelho - Total [100]</label>
+                <label><input type="radio" name="deposito" value="80" onchange="calculate()"> Fora (Alcançou) [80]</label>
+                <label><input type="radio" name="deposito" value="0" onchange="calculate()" checked> Não entregue [0]</label>
             </div>
-            <div class="form-group-alert">
+            <div class="form-group-alert" style="margin-top: 15px;">
                 <label>Tempo (seg):</label>
                 <input type="number" id="tempo-input" placeholder="Obrigatório">
             </div>
