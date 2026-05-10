@@ -56,18 +56,14 @@
                 <div class="row">
                     <label>Equipe:</label>
                     <select id="equipe-select" style="width: 70%; padding: 8px;">
-                        <option value="VIVERTEC">VIVERTEC</option>
-                        <option value="FLASHLIGHT">FLASHLIGHT</option>
-                        <option value="MARVELTEC U-19">MARVELTEC U-19</option>
-                        <option value="TECFLOR">TECFLOR</option>
-                        <option value="ROBOHERO">ROBOHERO</option>
-                        <option value="MASERATI">MASERATI</option>
-                        <option value="ROBO COC">ROBO COC</option>
-                        <option value="ROBOTEC-PED">ROBOTEC-PED</option>
-                        <option value="ARTHEMIS">ARTHEMIS</option>
-                        <option value="FÚRIA">FÚRIA</option>
-                        <option value="ENGREBOT">ENGREBOT</option>
-                    </select>
+                            <option>Carregando equipes...</option>
+                        </select>
+                        
+                        <script>
+                            window.onload = function() {
+                                carregarFirebase(); // Isso vai carregar o ranking e o select
+                            };
+                        </script>
                 </div>
             </div>
 
