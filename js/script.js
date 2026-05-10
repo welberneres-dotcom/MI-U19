@@ -82,10 +82,14 @@ function salvarPontuacao() {
 // --- LÓGICA DO RANKING (ADMIN E INDEX) ---
 
 function carregarFirebase() {
-    // 1. Popula o Select (apenas se estiver no Admin)
+    // Tenta encontrar o corpo da tabela (presente no index e no admin)
+    const body = document.getElementById('ranking-body');
+    if (!body) return;
+
+    // Tenta encontrar o select de equipes (só existe no admin)
     const select = document.getElementById('equipe-select');
     if (select) {
-        select.innerHTML = ""; // Limpa
+        select.innerHTML = ""; 
         EQUIPES_LISTA.forEach(equipe => {
             let option = document.createElement('option');
             option.value = equipe;
@@ -93,6 +97,52 @@ function carregarFirebase() {
             select.appendChild(option);
         });
     }
+
+    // Escuta o banco de dados
+    db.ref('ranking/').on('value', (snapshot) => {
+        const dadosDB = snapshot.val() || {};
+        let listaRanking = [];
+
+        // Monta a lista com todas as equipes, mesmo as que não pontuaram ainda
+        EQUIPES_LISTA.forEach(nomeEquipe => {
+            if (dadosDB[nomeEquipe]) {
+                listaRanking.push(dadosDB[nomeEquipe]);
+            } else {
+                listaRanking.push({ equipe: nomeEquipe, pontos: 0, tempo: 0 });
+            }
+        });
+
+        // Ordenação: Pontos (maior primeiro) e Tempo (menor primeiro)
+        listaRanking.sort((a, b) => {
+            if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+            if (a.tempo === 0) return 1;
+            if (b.tempo === 0) return -1;
+            return a.tempo - b.tempo;
+        });
+
+        // Renderiza as linhas na tabela
+        body.innerHTML = "";
+        listaRanking.forEach((item, index) => {
+            // Verifica se a tabela tem a coluna "Ação" (só no admin)
+            const thAcao = document.querySelector('th:nth-child(5)');
+            let tdAcao = thAcao ? `<td>---</td>` : ""; 
+            
+            // Se houver pontuação e estiver no admin, mostra o botão excluir
+            if (thAcao && (item.pontos > 0 || item.tempo > 0)) {
+                tdAcao = `<td><button class="btn-del" onclick="excluirEquipe('${item.equipe}')">Excluir</button></td>`;
+            }
+
+            body.innerHTML += `
+                <tr>
+                    <td class="posicao"><b>${index + 1}º</b></td>
+                    <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
+                    <td class="pts">${item.pontos}</td>
+                    <td>${item.tempo > 0 ? item.tempo + 's' : '---'}</td>
+                    ${tdAcao}
+                </tr>`;
+        });
+    });
+}
 
     // 2. Escuta o ranking em tempo real (.on)
     const body = document.getElementById('ranking-body');
