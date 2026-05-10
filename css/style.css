@@ -190,3 +190,39 @@
             font-weight: bold;
             cursor: pointer;
         }
+
+/* Cabeçalho da Tabela escuro como na foto */
+.table-header {
+    background-color: #1e293b;
+    color: white;
+}
+
+.table-header th {
+    padding: 15px;
+    border-radius: 5px;
+}
+
+/* Espaçamento do rodapé */
+.footer-logos {
+    margin-top: 40px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+}
+
+.logo-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin-top: 15px;
+}
+
+.logo-grid img {
+    height: 45px;
+    width: auto;
+}
+
+/* Efeito nas linhas da tabela */
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
