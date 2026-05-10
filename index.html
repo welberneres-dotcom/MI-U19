@@ -5,19 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ranking U19 - Competição</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .container { max-width: 600px; margin: 0 auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 10px; overflow: hidden; }
-        th { background: #1e293b; color: white; padding: 12px; }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-        tr:nth-child(even) { background-color: #f8fafc; }
-        .posicao { font-weight: bold; color: #dc2626; }
-        .pts { font-weight: bold; color: #2563eb; font-size: 1.2rem; }
-    </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container" style="max-width: 800px;">
     <div class="header-container">
         <img src="img/fira_logo.png" alt="Fira Brasil" class="header-logo">
         <h1>Classificação U19</h1>
@@ -39,7 +30,7 @@
     </table>
 
     <div class="footer-logos">
-        <span class="section-title" style="text-align: center; display: block; font-size: 1.1rem; margin-top: 20px; color:#e53935">
+        <span class="section-title" style="text-align: center; display: block; color:#e53935">
             <b>REALIZAÇÃO E APOIO</b>
         </span>
         <div class="logo-grid">
@@ -53,11 +44,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="js/script.js"></script>
-
-<script>
-    // Inicia a função assim que a página carregar
-    window.onload = carregarFirebase;
-</script>
-
+<script>window.onload = carregarFirebase;</script>
 </body>
 </html>
