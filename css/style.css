@@ -1,218 +1,46 @@
-/* 1. VARIÁVEIS E DEFINIÇÕES GLOBAIS */
 :root {
     --primary: #2563eb;
-    --success: #16a34a;
     --danger: #dc2626;
-    --bg: #f8fafc;
-    --card: #ffffff;
     --text-dark: #1e293b;
-    --text-muted: #475569;
-}
-
-* {
-    box-sizing: border-box;
 }
 
 body {
-    font-family: -apple-system, system-ui, sans-serif;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    
-    /* Configurações da Imagem de Fundo */
-    background-image: url('../img/mi.png'); 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
-
-/* 2. CONTAINER PRINCIPAL (CAIXA DE TEXTO) */
-.container {
-    max-width: 500px;
-    width: 100%;
-    background: var(--card);
-    padding: 25px;
-    border-radius: 15px;
-    border: 3px solid var(--danger); /* Borda vermelha solicitada */
-    box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.2);
-    height: fit-content;
-}
-
-/* 3. CABEÇALHO */
-.header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 30px;
-    gap: 15px;
-}
-
-.header-container h1 {
-    flex: 1;
-    margin: 0;
-    font-size: 1.4rem;
-    text-align: center;
-    color: var(--text-dark);
-}
-
-.header-logo {
-    height: 60px;
-    width: auto;
-    object-fit: contain;
-}
-
-/* 4. SEÇÕES E ELEMENTOS DE FORMULÁRIO */
-.section {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.section-title {
-    font-weight: bold;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    display: block;
-}
-
-.row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-/* Contador */
-.counter {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.btn-counter {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    border: none;
-    background: var(--primary);
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.btn-counter:hover {
-    opacity: 0.9;
-}
-
-/* Grupos de Seleção */
-.radio-group {
-    display: grid;
-    gap: 8px;
-}
-
-.radio-option {
-    background: #f1f5f9;
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.radio-option:hover {
-    background: #e2e8f0;
-}
-
-.radio-option input { 
-    margin-right: 10px; 
-}
-
-/* 5. BOX DE TOTAL E BOTÕES */
-.total-box {
-    background: var(--text-dark);
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    margin-top: 20px;
-}
-
-.total-points {
-    font-size: 3rem;
-    font-weight: 800;
-    display: block;
-    color: #38bdf8;
-}
-
-.btn-reset {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    background: #94a3b8;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* 6. TABELAS (ESTILO RANKING) */
-.table-header {
-    background-color: var(--text-dark);
-    color: white;
-}
-
-.table-header th {
-    padding: 15px;
-    text-align: center;
-}
-
-tr:nth-child(even) {
+    font-family: sans-serif;
+    margin: 0; padding: 20px;
     background-color: #f8fafc;
+    display: flex; justify-content: center;
 }
 
-/* 7. RODAPÉ E LOGOS DE APOIO */
-.footer-logos {
-    margin-top: 40px;
-    border-top: 1px solid #e2e8f0;
-    padding-top: 20px;
+.container {
+    width: 100%; background: white;
+    padding: 20px; border-radius: 15px;
+    border: 3px solid var(--danger);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-.logo-grid {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 25px;
-    margin-top: 15px;
-}
+.header-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.header-logo { height: 50px; }
+h1 { font-size: 1.2rem; color: var(--text-dark); text-align: center; flex: 1; }
 
-.logo-grid img {
-    height: 45px;
-    width: auto;
-    filter: grayscale(20%);
-    transition: transform 0.3s ease, filter 0.3s;
-}
+.section { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+.section-title { font-weight: bold; color: #64748b; font-size: 0.9rem; display: block; margin-bottom: 10px; }
 
-.logo-grid img:hover {
-    transform: scale(1.1);
-    filter: grayscale(0%);
-}
+.row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 
-/* 8. RESPONSIVIDADE */
-@media (max-width: 400px) {
-    .header-container h1 {
-        font-size: 1.1rem;
-    }
-    .header-logo {
-        height: 45px;
-    }
-    .total-points {
-        font-size: 2.2rem;
-    }
-}
+.counter { display: flex; align-items: center; gap: 10px; }
+.btn-counter { background: var(--primary); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; }
+
+.total-box { background: var(--text-dark); color: white; padding: 15px; border-radius: 10px; text-align: center; margin: 15px 0; }
+.total-points { display: block; font-size: 2.5rem; font-weight: bold; color: #38bdf8; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th { background: var(--text-dark); color: white; padding: 10px; font-size: 0.8rem; }
+td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+.posicao { color: var(--danger); font-weight: bold; }
+.pts { color: var(--primary); font-weight: bold; }
+
+.footer-logos { margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee; }
+.logo-grid { display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 10px; }
+.logo-grid img { height: 30px; }
+
+.btn-reset { width: 100%; border: none; background: #94a3b8; color: white; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; }
