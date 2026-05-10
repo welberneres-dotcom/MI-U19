@@ -1,17 +1,21 @@
-// CONFIGURAÇÃO DO FIREBASE
+
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
 const firebaseConfig = {
-    apiKey: "AIzaSy...", // MANTENHA SUA CHAVE REAL AQUI
-    authDomain: "seu-projeto.firebaseapp.com",
-    databaseURL: "https://seu-projeto-default-rtdb.firebaseio.com",
-    projectId: "seu-projeto",
-    storageBucket: "seu-projeto.appspot.com",
-    messagingSenderId: "0000000000",
-    appId: "1:..."
+  apiKey: "AIzaSyAXuajtBbVg-il6Z89fgd2xjcstaggHAOQ",
+  authDomain: "mi-u19.firebaseapp.com",
+  databaseURL: "https://mi-u19-default-rtdb.firebaseio.com",
+  projectId: "mi-u19",
+  storageBucket: "mi-u19.firebasestorage.app",
+  messagingSenderId: "1095633099036",
+  appId: "1:1095633099036:web:327abeb7f65f3c998402d9",
+  measurementId: "G-3R4VG0S190"
 };
 
-// Inicializa Firebase
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 const EQUIPES_LISTA = [
     "VIVERTEC", "FLASHLIGHT", "MARVELTEC U-19", "TECFLOR", 
