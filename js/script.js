@@ -1,21 +1,22 @@
-// CONFIGURAÇÃO DO FIREBASE (Suas credenciais reais)
+// 1. CONFIGURAÇÃO (Use os seus dados reais aqui)
 const firebaseConfig = {
-  apiKey: "AIzaSyAXuajtBbVg-il6Z89fgd2xjcstaggHAOQ",
-  authDomain: "mi-u19.firebaseapp.com",
-  databaseURL: "https://mi-u19-default-rtdb.firebaseio.com",
-  projectId: "mi-u19",
-  storageBucket: "mi-u19.firebasestorage.app",
-  messagingSenderId: "1095633099036",
-  appId: "1:1095633099036:web:327abeb7f65f3c998402d9",
-  measurementId: "G-3R4VG0S190"
+    apiKey: "AIzaSyAXuajtBbVg-il6Z89fgd2xjcstaggHAOQ",
+    authDomain: "mi-u19.firebaseapp.com",
+    databaseURL: "https://mi-u19-default-rtdb.firebaseio.com",
+    projectId: "mi-u19",
+    storageBucket: "mi-u19.firebasestorage.app",
+    messagingSenderId: "1095633099036",
+    appId: "1:1095633099036:web:327abeb7f65f3c998402d9",
+    measurementId: "G-3R4VG0S190"
 };
 
-// INICIALIZAÇÃO CORRETA (Modo Compatível)
+// 2. INICIALIZAÇÃO (Modo Compatibilidade - Sem 'import')
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-const db = firebase.database(); // AGORA O 'db' EXISTE!
+const db = firebase.database();
 
+// 3. LISTA DE EQUIPES
 const EQUIPES_LISTA = [
     "VIVERTEC", "FLASHLIGHT", "MARVELTEC U-19", "TECFLOR", 
     "ROBOHERO", "MASERATI", "ROBO COC", "ROBOTEC-PED", 
@@ -24,8 +25,20 @@ const EQUIPES_LISTA = [
 
 let curvas = 0;
 
-// --- FUNÇÕES DE CÁLCULO E ADMIN ---
+// --- FUNÇÃO PARA ZERAR (RESOLVENDO O SEU PROBLEMA) ---
+function zerarRanking() {
+    console.log("Botão zerar clicado"); // Isso aparecerá no F12 se funcionar
+    if (confirm("⚠️ ATENÇÃO: Deseja APAGAR TODAS as pontuações?")) {
+        db.ref('ranking').remove()
+            .then(() => {
+                alert("✅ Competição zerada!");
+                location.reload(); // Recarrega para limpar a tela
+            })
+            .catch(error => alert("Erro: " + error.message));
+    }
+}
 
+// --- FUNÇÕES DE CÁLCULO ---
 function updateCurvas(val) {
     curvas = Math.max(0, curvas + val);
     const campo = document.getElementById('curvas-val');
@@ -37,70 +50,61 @@ function calculate() {
     if (document.getElementById('item1')?.checked) total += 50;
     if (document.getElementById('item2')?.checked) total += 80;
     total += (curvas * 20);
-    
-    const depositoSelecionado = document.querySelector('input[name="deposito"]:checked');
-    if (depositoSelecionado) total += parseInt(depositoSelecionado.value);
-    
+    const deposito = document.querySelector('input[name="deposito"]:checked');
+    if (deposito) total += parseInt(deposito.value);
     const display = document.getElementById('total');
     if (display) display.innerText = total;
 }
 
 function salvarPontuacao() {
     const equipe = document.getElementById('equipe-select')?.value;
-    const tempoInput = document.getElementById('tempo-input');
-    const totalSpan = document.getElementById('total');
+    const tempo = parseInt(document.getElementById('tempo-input')?.value);
+    const pontos = parseInt(document.getElementById('total')?.innerText);
 
-    if (!equipe) return;
-    const tempo = parseInt(tempoInput.value);
-    const pontos = parseInt(totalSpan.innerText);
-
-    if (isNaN(tempo) || tempo <= 0) {
-        alert("Informe o tempo total da prova!");
-        tempoInput.focus();
+    if (!equipe || isNaN(tempo)) {
+        alert("Preencha o tempo antes de salvar!");
         return;
     }
 
-    // Salvando no Banco de Dados
     db.ref('ranking/' + equipe).set({
         equipe: equipe,
         pontos: pontos,
         tempo: tempo
     }).then(() => {
-        alert("Pontuação de " + equipe + " enviada!");
+        alert("Pontuação salva!");
         resetForm();
-    }).catch(e => alert("Erro ao salvar: " + e.message));
+    });
 }
 
-// --- LÓGICA DO RANKING (PÚBLICO E ADMIN) ---
-
+// --- CARREGAR DADOS NO INDEX E ADMIN ---
 function carregarFirebase() {
     const body = document.getElementById('ranking-body');
     if (!body) return;
 
+    // Popula o select se for o Admin
     const select = document.getElementById('equipe-select');
     if (select) {
-        select.innerHTML = ""; 
-        EQUIPES_LISTA.forEach(equipe => {
-            let option = document.createElement('option');
-            option.value = equipe;
-            option.text = equipe;
-            select.appendChild(option);
+        select.innerHTML = "";
+        EQUIPES_LISTA.forEach(e => {
+            select.innerHTML += `<option value="${e}">${e}</option>`;
         });
     }
 
+    // Escuta o Firebase
     db.ref('ranking/').on('value', (snapshot) => {
         const dadosDB = snapshot.val() || {};
-        let listaRanking = [];
+        let lista = [];
 
-        EQUIPES_LISTA.forEach(nomeEquipe => {
-            if (dadosDB[nomeEquipe]) {
-                listaRanking.push(dadosDB[nomeEquipe]);
+        EQUIPES_LISTA.forEach(nome => {
+            if (dadosDB[nome]) {
+                lista.push(dadosDB[nome]);
             } else {
-                listaRanking.push({ equipe: nomeEquipe, pontos: 0, tempo: 0 });
+                lista.push({ equipe: nome, pontos: 0, tempo: 0 });
             }
         });
 
-        listaRanking.sort((a, b) => {
+        // Ordenação
+        lista.sort((a, b) => {
             if (b.pontos !== a.pontos) return b.pontos - a.pontos;
             if (a.tempo === 0) return 1;
             if (b.tempo === 0) return -1;
@@ -108,21 +112,15 @@ function carregarFirebase() {
         });
 
         body.innerHTML = "";
-        listaRanking.forEach((item, index) => {
+        lista.forEach((item, index) => {
             const thAcao = document.querySelector('th:nth-child(5)');
-            let tdAcao = ""; 
+            let tdAcao = thAcao ? `<td><button class="btn-del" onclick="excluirEquipe('${item.equipe}')">Excluir</button></td>` : "";
             
-            if (thAcao) {
-                tdAcao = (item.pontos > 0 || item.tempo > 0) 
-                    ? `<td><button class="btn-del" onclick="excluirEquipe('${item.equipe}')">Excluir</button></td>`
-                    : `<td>---</td>`;
-            }
-
             body.innerHTML += `
                 <tr>
-                    <td class="posicao"><b>${index + 1}º</b></td>
-                    <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
-                    <td class="pts">${item.pontos}</td>
+                    <td>${index + 1}º</td>
+                    <td style="text-align:left">${item.equipe}</td>
+                    <td>${item.pontos}</td>
                     <td>${item.tempo > 0 ? item.tempo + 's' : '---'}</td>
                     ${tdAcao}
                 </tr>`;
@@ -131,41 +129,13 @@ function carregarFirebase() {
 }
 
 function excluirEquipe(nome) {
-    if (confirm("Excluir pontuação de " + nome + "?")) {
-        db.ref('ranking/' + nome).remove();
-    }
+    if (confirm("Excluir " + nome + "?")) db.ref('ranking/' + nome).remove();
 }
 
 function resetForm() {
     curvas = 0;
-    if (document.getElementById('curvas-val')) document.getElementById('curvas-val').innerText = 0;
-    document.querySelectorAll('input[type=checkbox]').forEach(el => el.checked = false);
-    document.querySelectorAll('input[type=number]').forEach(el => el.value = "");
-    if (document.getElementById('total')) document.getElementById('total').innerText = 0;
-    // Reseta o rádio para "Não entregue"
-    const radioPadrao = document.querySelector('input[name="deposito"][value="0"]');
-    if (radioPadrao) radioPadrao.checked = true;
-}
-
-function zerarRanking() {
-    // 1. Pergunta para evitar cliques acidentais
-    const confirmacao1 = confirm("⚠️ ATENÇÃO: Você está prestes a APAGAR TODAS as pontuações de todas as equipes!");
-    
-    if (confirmacao1) {
-        const confirmacao2 = confirm("TEM CERTEZA ABSOLUTA? Esta ação não pode ser desfeita.");
-        
-        if (confirmacao2) {
-            // 2. Comando para o Firebase remover todos os dados de 'ranking'
-            db.ref('ranking').remove()
-                .then(() => {
-                    alert("✅ Competição zerada com sucesso!");
-                    // Opcional: recarregar a página para limpar tudo visualmente
-                    location.reload(); 
-                })
-                .catch((error) => {
-                    console.error("Erro ao zerar:", error);
-                    alert("❌ Erro ao zerar o banco de dados: " + error.message);
-                });
-        }
-    }
+    document.getElementById('curvas-val').innerText = "0";
+    document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
+    document.getElementById('tempo-input').value = "";
+    document.getElementById('total').innerText = "0";
 }
