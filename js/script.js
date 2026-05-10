@@ -1,4 +1,4 @@
-// CONFIGURAÇÃO DO SEU FIREBASE
+// CONFIGURAÇÃO DO FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyAXuajtBbVg-il6Z89fgd2xjcstaggHAOQ",
     authDomain: "mi-u19.firebaseapp.com",
@@ -6,18 +6,69 @@ const firebaseConfig = {
     projectId: "mi-u19",
     storageBucket: "mi-u19.firebasestorage.app",
     messagingSenderId: "1095633099036",
-    appId: "1:1095633099036:web:327abeb7f65f3c998402d9",
-    measurementId: "G-3R4VG0S190"
+    appId: "1:1095633099036:web:327abeb7f65f3c998402d9"
 };
 
-// Inicializa o Firebase (Verifica se já não foi inicializado)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
-let curvas = 0;
+// LISTA FIXA DE EQUIPES (Baseada na sua imagem)
+const EQUIPES_PADRAO = [
+    "VIVERTEC", "FLASHLIGHT", "MARVELTEC U-19", "TECFLOR", 
+    "ROBOHERO", "MASERATI", "ROBO COC", "ROBOTEC-PED", 
+    "ARTHEMIS", "FÚRIA", "ENGREBOT"
+];
 
+function carregarFirebase() {
+    const body = document.getElementById('ranking-body');
+    if(!body) return;
+
+    db.ref('ranking/').on('value', (snapshot) => {
+        const dadosFirebase = snapshot.val() || {};
+        let listaFinal = [];
+
+        // 1. Unir a lista fixa com os dados do Firebase
+        EQUIPES_PADRAO.forEach(nomeEquipe => {
+            if (dadosFirebase[nomeEquipe]) {
+                // Se a equipe já tem ponto no Firebase, usa o dado real
+                listaFinal.push(dadosFirebase[nomeEquipe]);
+            } else {
+                // Se não tem nada, coloca ela com zero
+                listaFinal.push({
+                    equipe: nomeEquipe,
+                    pontos: 0,
+                    tempo: 0
+                });
+            }
+        });
+
+        // 2. ORDENAÇÃO: Maior pontuação primeiro. Em caso de empate, menor tempo.
+        listaFinal.sort((a, b) => {
+            if (b.pontos !== a.pontos) {
+                return b.pontos - a.pontos; // Maior pontuação
+            }
+            // Se os pontos forem iguais, o que tiver o MENOR tempo ganha (ascendente)
+            // Mas atenção: tempo 0 deve ficar por último se não correu ainda
+            if (a.tempo === 0) return 1;
+            if (b.tempo === 0) return -1;
+            return a.tempo - b.tempo;
+        });
+
+        // 3. Renderizar na tela
+        body.innerHTML = ""; 
+        listaFinal.forEach((item, index) => {
+            body.innerHTML += `
+                <tr>
+                    <td class="posicao">${index + 1}º</td>
+                    <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
+                    <td class="pts" style="color: #2563eb; font-weight: bold;">${item.pontos}</td>
+                    <td>${item.tempo > 0 ? item.tempo + 's' : '---'}</td>
+                </tr>`;
+        });
+    });
+}
 // --- FUNÇÕES DO JUIZ (ADMIN) ---
 function updateCurvas(val) {
     curvas = Math.max(0, curvas + val);
