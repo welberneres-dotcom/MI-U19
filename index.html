@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking U19 - Competição</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .container { max-width: 600px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 10px; overflow: hidden; }
+        th { background: #1e293b; color: white; padding: 12px; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        .posicao { font-weight: bold; color: #dc2626; }
+        .pts { font-weight: bold; color: #2563eb; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-container">
+        <img src="img/fira_logo.png" alt="Fira Brasil" class="header-logo">
+        <h1>Classificação U19</h1>
+        <img src="img/robotec_logo.png" alt="Robotec" class="header-logo">
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Pos</th>
+                <th style="text-align: left;">Equipe</th>
+                <th>Pts</th>
+                <th>Tempo</th>
+            </tr>
+        </thead>
+        <tbody id="ranking-body">
+            </tbody>
+    </table>
+
+    <div class="footer-logos">
+        <div class="logo-grid">
+            <img src="img/robotec_logo.png" alt="Robotec">
+            <img src="img/fira_logo.png" alt="Fira Brasil">
+            <img src="img/coc_logo.png" alt="COC">
+        </div>
+    </div>
+</div>
+
+<script>
+    function carregarRanking() {
+        const ranking = JSON.parse(localStorage.getItem('ranking_robotica')) || [];
+        const body = document.getElementById('ranking-body');
+
+        // Ordenação: 1º Pontos (Descendente), 2º Tempo (Ascendente)
+        ranking.sort((a, b) => {
+            if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+            return a.tempo - b.tempo;
+        });
+
+        body.innerHTML = "";
+        ranking.forEach((item, index) => {
+            body.innerHTML += `
+                <tr>
+                    <td class="posicao">${index + 1}º</td>
+                    <td style="text-align: left; font-weight: 500;">${item.equipe}</td>
+                    <td class="pts">${item.pontos}</td>
+                    <td>${item.tempo}s</td>
+                </tr>`;
+        });
+    }
+    window.onload = carregarRanking;
+    // Atualiza a cada 30 segundos sozinho
+    setInterval(carregarRanking, 30000);
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="js/script.js"></script>
+
+</body>
+</html>
