@@ -19,30 +19,37 @@ const EQUIPES_LISTA = [
 
 let curvas = 0;
 
-// --- LÓGICA DO JUIZ ---
 function updateCurvas(val) {
     curvas = Math.max(0, curvas + val);
     const campo = document.getElementById('curvas-val');
-    if (campo) { campo.innerText = curvas; calculate(); }
+    if(campo) { campo.innerText = curvas; calculate(); }
 }
 
 function calculate() {
     let total = 0;
-    if (document.getElementById('item1')?.checked) total += 50;
-    if (document.getElementById('item2')?.checked) total += 80;
+    if(document.getElementById('item1')?.checked) total += 50;
+    if(document.getElementById('item2')?.checked) total += 80;
     total += (curvas * 20);
     const deposito = document.querySelector('input[name="deposito"]:checked')?.value;
-    if (deposito) total += parseInt(deposito);
-    if (document.getElementById('total')) document.getElementById('total').innerText = total;
+    if(deposito) total += parseInt(deposito);
+    if(document.getElementById('bonus1')?.checked) total += 50;
+    if(document.getElementById('bonus2')?.checked) total += 100;
+
+    const display = document.getElementById('total');
+    if(display) display.innerText = total;
 }
 
 function salvarPontuacao() {
     const equipe = document.getElementById('equipe-select').value;
-    const tempo = parseInt(document.getElementById('tempo-input').value);
-    const pontos = parseInt(document.getElementById('total').innerText);
+    const tempoInput = document.getElementById('tempo-input');
+    const totalSpan = document.getElementById('total');
+    
+    const tempo = parseInt(tempoInput.value);
+    const pontos = parseInt(totalSpan.innerText) || 0;
 
     if (isNaN(tempo) || tempo <= 0) {
-        alert("Informe o tempo da prova!");
+        alert("Erro: Informe o tempo total da prova!");
+        tempoInput.focus();
         return;
     }
 
@@ -51,38 +58,28 @@ function salvarPontuacao() {
         pontos: pontos,
         tempo: tempo
     }).then(() => {
-        alert("Salvo!");
+        alert("Pontuação registrada!");
         resetForm();
-    });
+    }).catch(e => alert("Erro: " + e.message));
 }
 
-function resetForm() {
-    curvas = 0;
-    if(document.getElementById('curvas-val')) document.getElementById('curvas-val').innerText = 0;
-    document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
-    document.querySelectorAll('input[type=number]').forEach(n => n.value = "");
-    if(document.getElementById('total')) document.getElementById('total').innerText = 0;
-}
-
-// --- LÓGICA DO RANKING (INDEX E ADMIN) ---
 function carregarFirebase() {
     const body = document.getElementById('ranking-body');
-    if (!body) return;
+    if(!body) return;
 
     db.ref('ranking/').on('value', (snapshot) => {
-        const dadosDB = snapshot.val() || {};
-        let rankingFinal = [];
+        const dados = snapshot.val() || {};
+        let lista = [];
 
         EQUIPES_LISTA.forEach(nome => {
-            if (dadosDB[nome]) {
-                rankingFinal.push(dadosDB[nome]);
+            if (dados[nome]) {
+                lista.push(dados[nome]);
             } else {
-                rankingFinal.push({ equipe: nome, pontos: 0, tempo: 0 });
+                lista.push({ equipe: nome, pontos: 0, tempo: 0 });
             }
         });
 
-        // Ordenação: Pontos (Desc) -> Tempo (Asc)
-        rankingFinal.sort((a, b) => {
+        lista.sort((a, b) => {
             if (b.pontos !== a.pontos) return b.pontos - a.pontos;
             if (a.tempo === 0 && a.pontos === 0) return 1;
             if (b.tempo === 0 && b.pontos === 0) return -1;
@@ -90,14 +87,24 @@ function carregarFirebase() {
         });
 
         body.innerHTML = "";
-        rankingFinal.forEach((item, index) => {
+        lista.forEach((item, index) => {
             body.innerHTML += `
                 <tr>
-                    <td class="posicao">${index + 1}º</td>
+                    <td class="posicao"><b>${index + 1}º</b></td>
                     <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
                     <td class="pts">${item.pontos}</td>
                     <td>${item.tempo > 0 ? item.tempo + 's' : '---'}</td>
                 </tr>`;
         });
     });
+}
+
+function resetForm() {
+    curvas = 0;
+    const cVal = document.getElementById('curvas-val');
+    if(cVal) cVal.innerText = 0;
+    document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
+    document.querySelectorAll('input[type=number]').forEach(n => n.value = "");
+    document.querySelectorAll('input[name=deposito]').forEach(r => r.checked = r.value == "0");
+    calculate();
 }
