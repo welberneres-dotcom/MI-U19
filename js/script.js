@@ -1,4 +1,4 @@
-// CONFIGURAÇÃO DO FIREBASE (Mantenha seus dados originais aqui)
+// CONFIGURAÇÃO DO FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyAXuajtBbVg-il6Z89fgd2xjcstaggHAOQ",
     authDomain: "mi-u19.firebaseapp.com",
@@ -9,20 +9,72 @@ const firebaseConfig = {
     appId: "1:1095633099036:web:327abeb7f65f3c998402d9"
 };
 
-// Inicializa Firebase
+// Inicializa o Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
-// LISTA MESTRA DE EQUIPES
-const EQUIPES_LISTA = [
+// LISTA MESTRA (Exatamente como na sua imagem)
+const EQUIPES_ESTATICAS = [
     "VIVERTEC", "FLASHLIGHT", "MARVELTEC U-19", "TECFLOR", 
     "ROBOHERO", "MASERATI", "ROBO COC", "ROBOTEC-PED", 
     "ARTHEMIS", "FÚRIA", "ENGREBOT"
 ];
 
-let curvas = 0;
+function carregarFirebase() {
+    const body = document.getElementById('ranking-body');
+    if(!body) return;
+
+    // Escuta o banco de dados em tempo real
+    db.ref('ranking/').on('value', (snapshot) => {
+        const dadosDB = snapshot.val() || {};
+        let rankingFinal = [];
+
+        // Cruza a lista mestra com os dados vindos do Firebase
+        EQUIPES_ESTATICAS.forEach(nomeEquipe => {
+            if (dadosDB[nomeEquipe]) {
+                // Se a equipe já tem dados no banco, usa eles
+                rankingFinal.push({
+                    equipe: nomeEquipe,
+                    pontos: parseInt(dadosDB[nomeEquipe].pontos) || 0,
+                    tempo: parseInt(dadosDB[nomeEquipe].tempo) || 0
+                });
+            } else {
+                // Se não tem dados, inicia zerada
+                rankingFinal.push({
+                    equipe: nomeEquipe,
+                    pontos: 0,
+                    tempo: 0
+                });
+            }
+        });
+
+        // ORDENAÇÃO: 1º Pontos (Maior para menor) | 2º Tempo (Menor para maior)
+        rankingFinal.sort((a, b) => {
+            if (b.pontos !== a.pontos) {
+                return b.pontos - a.pontos; // Maior pontuação ganha
+            }
+            // Critério de Desempate: Menor tempo ganha
+            // Tratamento: quem tem tempo 0 e pontos 0 fica por último
+            if (a.tempo === 0 && a.pontos === 0) return 1;
+            if (b.tempo === 0 && b.pontos === 0) return -1;
+            return a.tempo - b.tempo; 
+        });
+
+        // Atualiza a tabela no HTML
+        body.innerHTML = ""; 
+        rankingFinal.forEach((item, index) => {
+            body.innerHTML += `
+                <tr>
+                    <td class="posicao">${index + 1}º</td>
+                    <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
+                    <td class="pts">${item.pontos}</td>
+                    <td>${item.tempo > 0 ? item.tempo + 's' : '---'}</td>
+                </tr>`;
+        });
+    });
+}
 
 // --- FUNÇÕES DA CALCULADORA (ADMIN) ---
 function updateCurvas(val) {
