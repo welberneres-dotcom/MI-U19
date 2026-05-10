@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Juiz - U19</title>
+    <title>Calculadora de Robótica - Juiz</title>
+    <link rel="shortcut icon" href="img/LOGO.ico">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <div class="container">
     <div class="header-container">
-        <img src="img/fira_logo.png" alt="Fira" class="header-logo">
+        <img src="img/fira_logo.png" alt="Fira Brasil" class="header-logo">
         <h1>Painel do Juiz</h1>
         <img src="img/robotec_logo.png" alt="Robotec" class="header-logo">
     </div>
@@ -19,7 +20,7 @@
         <span class="section-title">Identificação</span>
         <div class="row">
             <label>Equipe:</label>
-            <select id="equipe-select" style="padding: 8px; border-radius: 8px; width: 70%;">
+            <select id="equipe-select" style="padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; width: 60%;">
                 <option value="VIVERTEC">VIVERTEC</option>
                 <option value="FLASHLIGHT">FLASHLIGHT</option>
                 <option value="MARVELTEC U-19">MARVELTEC U-19</option>
@@ -36,14 +37,24 @@
     </div>
 
     <div class="section">
-        <span class="section-title">Missões e Navegação</span>
-        <div class="row"><label>Início no robô (+50)</label><input type="checkbox" id="item1" onchange="calculate()"></div>
-        <div class="row"><label>Coleta autônoma (+80)</label><input type="checkbox" id="item2" onchange="calculate()"></div>
+        <span class="section-title">Missões Iniciais</span>
         <div class="row">
-            <label>Curvas (+20 cada)</label>
+            <label>Material inicia no robô (+50)</label>
+            <input type="checkbox" id="item1" onchange="calculate()">
+        </div>
+        <div class="row">
+            <label>Coleta autônoma (+80)</label>
+            <input type="checkbox" id="item2" onchange="calculate()">
+        </div>
+    </div>
+
+    <div class="section">
+        <span class="section-title">Navegação (Curvas 90º)</span>
+        <div class="row">
+            <label>Curvas superadas (+20 cada)</label>
             <div class="counter">
                 <button class="btn-counter" onclick="updateCurvas(-1)">-</button>
-                <span id="curvas-val">0</span>
+                <span id="curvas-val" style="font-weight: bold;">0</span>
                 <button class="btn-counter" onclick="updateCurvas(1)">+</button>
             </div>
         </div>
@@ -52,50 +63,7 @@
     <div class="section">
         <span class="section-title">Local de Depósito</span>
         <div class="radio-group">
-            <label class="radio-option"><input type="radio" name="deposito" value="200" onchange="calculate()"> L2 Azul - Total [200]</label>
-            <label class="radio-option"><input type="radio" name="deposito" value="100" onchange="calculate()"> L2 Azul - Parcial [100]</label>
-            <label class="radio-option"><input type="radio" name="deposito" value="100" onchange="calculate()"> L1 Vermelho - Total [100]</label>
-            <label class="radio-option"><input type="radio" name="deposito" value="80" onchange="calculate()"> Fora (Alcançou) [80]</label>
-            <label class="radio-option"><input type="radio" name="deposito" value="0" onchange="calculate()" checked> Não entregue [0]</label>
-        </div>
-    </div>
-
-    <div class="section">
-        <span class="section-title">Bônus e Finalização</span>
-        <div class="row">
-            <label>Tempo (seg):</label>
-            <input type="number" id="tempo-input" style="width: 80px; padding: 5px;">
-        </div>
-    </div>
-
-    <div class="total-box">
-        PONTUAÇÃO ATUAL
-        <span id="total" class="total-points">0</span>
-    </div>
-
-    <button onclick="salvarPontuacao()" class="btn-save" style="width:100%; padding:15px; background:#16a34a; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;">REGISTRAR PONTUAÇÃO</button>
-    <button onclick="resetForm()" class="btn-reset">Limpar Campos</button>
-
-    <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ccc;">
-
-    <h2 style="text-align: center; font-size: 1.2rem;">Classificação em Tempo Real</h2>
-    <table style="font-size: 0.9rem;">
-        <thead>
-            <tr class="table-header">
-                <th>Pos</th>
-                <th>Equipe</th>
-                <th>Pts</th>
-                <th>Tempo</th>
-            </tr>
-        </thead>
-        <tbody id="ranking-body">
-            </tbody>
-    </table>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="js/script.js"></script>
-<script>window.onload = carregarFirebase;</script>
-</body>
-</html>
+            <label class="radio-option"><input type="radio" name="deposito" value="200" onchange="calculate()"> Local 2 (Azul) - Total [200]</label>
+            <label class="radio-option"><input type="radio" name="deposito" value="100" onchange="calculate()"> Local 2 (Azul) - Parcial [100]</label>
+            <label class="radio-option"><input type="radio" name="deposito" value="100" onchange="calculate()"> Local 1 (Vermelho) - Total [100]</label>
+            <label class="radio-option"><input type="radio" name="deposito" value="80" onchange="calculate
