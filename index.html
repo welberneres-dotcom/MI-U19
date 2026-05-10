@@ -6,7 +6,7 @@
     <title>Ranking U19 - Competição</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .container { max-width: 600px; }
+        .container { max-width: 600px; margin: 0 auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 10px; overflow: hidden; }
         th { background: #1e293b; color: white; padding: 12px; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
@@ -34,11 +34,12 @@
             </tr>
         </thead>
         <tbody id="ranking-body">
-            </tbody>
+            <tr><td colspan="4">Carregando ranking...</td></tr>
+        </tbody>
     </table>
 
     <div class="footer-logos">
-        <span class="section-title" style="text-align: center; display: block; font-size: 1.1rem; margin-top: 20px;color:#e53935">
+        <span class="section-title" style="text-align: center; display: block; font-size: 1.1rem; margin-top: 20px; color:#e53935">
             <b>REALIZAÇÃO E APOIO</b>
         </span>
         <div class="logo-grid">
@@ -49,36 +50,14 @@
     </div>
 </div>
 
-<script>
-    function carregarRanking() {
-        const ranking = JSON.parse(localStorage.getItem('ranking_robotica')) || [];
-        const body = document.getElementById('ranking-body');
-
-        // Ordenação: 1º Pontos (Descendente), 2º Tempo (Ascendente)
-        ranking.sort((a, b) => {
-            if (b.pontos !== a.pontos) return b.pontos - a.pontos;
-            return a.tempo - b.tempo;
-        });
-
-        body.innerHTML = "";
-        ranking.forEach((item, index) => {
-            body.innerHTML += `
-                <tr>
-                    <td class="posicao">${index + 1}º</td>
-                    <td style="text-align: left; font-weight: 500;">${item.equipe}</td>
-                    <td class="pts">${item.pontos}</td>
-                    <td>${item.tempo}s</td>
-                </tr>`;
-        });
-    }
-    window.onload = carregarRanking;
-    // Atualiza a cada 30 segundos sozinho
-    setInterval(carregarRanking, 30000);
-</script>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="js/script.js"></script>
+
+<script>
+    // Inicia a função assim que a página carregar
+    window.onload = carregarFirebase;
+</script>
 
 </body>
 </html>
