@@ -1,8 +1,4 @@
-
-
-
-
-  // COLE AQUI AS CONFIGURAÇÕES DO SEU PROJETO FIREBASE
+ // COLE AQUI AS CONFIGURAÇÕES DO SEU PROJETO FIREBASE
   const firebaseConfig = {
     apiKey: "SUA_API_KEY",
     authDomain: "seu-projeto.firebaseapp.com",
@@ -17,6 +13,45 @@
   const db = firebase.database();
 
 let curvas = 0;
+// Função para carregar e organizar o Ranking em tempo real
+function carregarFirebase() {
+    const body = document.getElementById('ranking-body');
+    if(!body) return;
+
+    // O ".on('value', ...)" faz a mágica do tempo real (atualiza sem dar F5)
+    db.ref('ranking/').on('value', (snapshot) => {
+        const dados = snapshot.val();
+        let lista = [];
+
+        // Transforma o objeto do Firebase em uma lista que podemos ordenar
+        for (let id in dados) {
+            lista.push(dados[id]);
+        }
+
+        // ORDENAÇÃO: 1º Pontos (Maior para menor), 2º Tempo (Menor para maior)
+        lista.sort((a, b) => {
+            if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+            return a.tempo - b.tempo;
+        });
+
+        // LIMPA A TABELA ANTES DE REESCREVER
+        body.innerHTML = "";
+
+        // GERA AS LINHAS COM OS NOMES DAS EQUIPES
+        lista.forEach((item, index) => {
+            body.innerHTML += `
+                <tr>
+                    <td class="posicao"><b>${index + 1}º</b></td>
+                    <td style="text-align: left; font-weight: bold;">${item.equipe}</td>
+                    <td class="pts">${item.pontos}</td>
+                    <td>${item.tempo}s</td>
+                </tr>`;
+        });
+    });
+}
+
+
+
 
 function updateCurvas(val) {
     curvas = Math.max(0, curvas + val);
